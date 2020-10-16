@@ -1,5 +1,5 @@
 
-from typing import Callable, Dict, Tuple, Set
+from typing import Callable, Dict, Tuple, Set, Optional
 from collections import deque
 
 from maze import Maze
@@ -23,7 +23,7 @@ class Agent:
     def _aStar(self, maze: Maze) -> Dict:
         pass
     
-    def _validateAdjacents(self, current: Tuple[int, int], maze: Maze, closedList: dict, generatedChildren: Set) -> Dict:
+    def _validateAdjacents(self, current: Tuple[int, int], maze: Maze, closedSet: dict, backTracker: Optional[Dict]={}) -> Dict:
         row = current[0]
         col = current[1]
         bounds = maze.getSpaces()
@@ -31,68 +31,74 @@ class Agent:
         checks = {}
         # check right
         checks['right'] =  (row,col+1) in bounds \
-            and (row,col+1) not in closedList \
+            and (row,col+1) not in closedSet \
             and (row,col+1) not in walls\
-            and (row,col+1) not in generatedChildren
+            and (row,col+1) not in backTracker
         # check above
         checks['up'] =  (row+1,col) in bounds \
-            and (row+1,col) not in closedList \
+            and (row+1,col) not in closedSet \
             and (row+1,col) not in walls\
-            and (row+1,col) not in generatedChildren
+            and (row+1,col) not in backTracker
         checks['down'] =  (row-1,col) in bounds \
-            and (row-1,col) not in closedList \
+            and (row-1,col) not in closedSet \
             and (row-1,col) not in walls\
-            and (row-1,col) not in generatedChildren
+            and (row-1,col) not in backTracker
         checks['left'] =  (row,col-1) in bounds \
-            and (row,col-1) not in closedList \
+            and (row,col-1) not in closedSet \
             and (row,col-1) not in walls\
-            and (row,col-1) not in generatedChildren
+            and (row,col-1) not in backTracker
         return checks
            
     def _BFS(self, maze: Maze) -> Dict:
         '''Assume the following
         - When children nodes are being generated, the order is: right, above, down, left
-        - ignore repeated states in the closed list
+        - ignore repeated states to avoid loops -> optimality not affected
         '''
-        # dicts to remember the explored nodes
-        closedList = set()
-        generatedChildren = set()
-        # use a dictionary to store parent-child relationships for nodes (for backtracking)
+        # dict to remember the explored nodes
+        closedSet = set()
+        # use a dictionary to store parent-child relationships for nodes to build final path
+        # secondary utility is to track which nodes have been added to the  fringe so loops are avoided
         backTracker = {}
         # use a queue to keep track of the open list of nodes
         fringe = deque()
         fringe.append(maze.getStart())
         # start algorithm
         current = None
-        nodesExp = 0
-        while fringe and nodesExp < 626:
+        while fringe:
             current = fringe[0]
             # generate children
-            adjacentValid = self._validateAdjacents(current, maze, closedList, generatedChildren)
+            adjacentValid = self._validateAdjacents(current, maze, closedSet, backTracker=backTracker)
             row = current[0]
             col = current[1] 
             if adjacentValid['right']:
                 newChild = (row,col+1)
                 fringe.append(newChild)
-                generatedChildren.add(newChild)
+                backTracker[newChild] = current
             if adjacentValid['up']:
                 newChild = (row+1,col)
                 fringe.append(newChild)
-                generatedChildren.add(newChild)
+                backTracker[newChild] = current
             if adjacentValid['down']:
                 newChild = (row-1,col)
                 fringe.append(newChild)
-                generatedChildren.add(newChild)
+                backTracker[newChild] = current
             if adjacentValid['left']:
                 newChild = (row,col-1)
                 fringe.append(newChild)
-                generatedChildren.add(newChild)
-            if current == maze.getEnd():
-                return closedList
+                backTracker[newChild] = current
             expanded = fringe.popleft()
-            closedList.add(expanded)
-            nodesExp += 1
-            print("Added node {} to closed, #{}".format(expanded, nodesExp))
+            closedSet.add(expanded)
+            if current == maze.getEnd():
+                # build path
+                key = current
+                path = deque()
+                while key != maze.getStart():
+                    path.appendleft(key)
+                    key = backTracker[key]
+                path.appendleft(maze.getStart()) 
+                # return path, cost, and number of nodes goal-checked
+                return {'path': path, 'cost': len(path), 'numExpanded': len(closedSet), 'closedSet': closedSet}
 
     def _DFS(self, maze: Maze) -> Dict:
         pass
+

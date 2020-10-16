@@ -8,7 +8,6 @@ class Maze:
         for i in range(0,25):
             for j in range(0,25):
                 self._spaces.add((i,j))
-
         # model maze by providing a O(1) lookup of occupied spaces
         self._walls = set([
             (24,4), (24,5), (24,17), (24,18),
@@ -38,10 +37,14 @@ class Maze:
         ])
         if start in self._walls:
             raise Exception("Start point is a wall: {}".format(start))
+        elif start not in self._spaces:
+            raise Exception("Start point is not within the maze bounds: {}".format(start))
         else:
             self._start = start 
         if end in self._walls:
             raise Exception("End point is a wall: {}".format(end))
+        elif end not in self._spaces:
+            raise Exception("End point is not within the maze bounds: {}".format(end))
         else:
             self._end = end
 
