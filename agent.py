@@ -1,6 +1,7 @@
 
 from typing import Callable, Dict, Tuple, Set, Optional
 from collections import deque
+from queue import LifoQueue
 
 from maze import Maze
 
@@ -29,12 +30,10 @@ class Agent:
         bounds = maze.getSpaces()
         walls = maze.getWalls()
         checks = {}
-        # check right
         checks['right'] =  (row,col+1) in bounds \
             and (row,col+1) not in closedSet \
             and (row,col+1) not in walls\
             and (row,col+1) not in backTracker
-        # check above
         checks['up'] =  (row+1,col) in bounds \
             and (row+1,col) not in closedSet \
             and (row+1,col) not in walls\
@@ -100,5 +99,45 @@ class Agent:
                 return {'path': path, 'cost': len(path), 'numExpanded': len(closedSet), 'closedSet': closedSet}
 
     def _DFS(self, maze: Maze) -> Dict:
-        pass
-
+        '''Assume the following
+        - When children nodes are being added to the stack, the input order is: left, down, above, right
+        - ignore repeated states to avoid loops -> optimality not affected
+        '''
+        closedSet = set()
+        backTracker = {}
+        fringe = LifoQueue()
+        fringe.put(maze.getStart())
+        current = None
+        while fringe:
+            current = fringe.get()
+            adjacentValid = self._validateAdjacents(current, maze, closedSet, backTracker=backTracker)
+            row = current[0]
+            col = current[1]
+            if adjacentValid['left']:
+                newChild = (row,col-1)
+                fringe.put(newChild)
+                backTracker[newChild] = current
+            if adjacentValid['down']:
+                newChild = (row-1,col)
+                fringe.put(newChild)
+                backTracker[newChild] = current
+            if adjacentValid['up']:
+                newChild = (row+1,col)
+                fringe.put(newChild)
+                backTracker[newChild] = current
+            if adjacentValid['right']:
+                newChild = (row,col+1)
+                fringe.put(newChild)
+                backTracker[newChild] = current
+            closedSet.add(current)
+            if current == maze.getEnd():
+                # build path
+                key = current
+                path = deque()
+                while key != maze.getStart():
+                    path.appendleft(key)
+                    key = backTracker[key]
+                path.appendleft(maze.getStart()) 
+                # return path, cost, and number of nodes goal-checked
+                return {'path': path, 'cost': len(path), 'numExpanded': len(closedSet), 'closedSet': closedSet}
+            
