@@ -1,6 +1,5 @@
-
 from typing import Callable, Dict, Tuple, Set, Optional
-from collections import deque
+from collections import deque, OrderedDict
 from queue import LifoQueue
 
 from maze import Maze
@@ -54,7 +53,7 @@ class Agent:
         - ignore repeated states to avoid loops -> optimality not affected
         '''
         # dict to remember the explored nodes
-        closedSet = set()
+        closedSet = OrderedDict()
         # use a dictionary to store parent-child relationships for nodes to build final path
         # secondary utility is to track which nodes have been added to the  fringe so loops are avoided
         backTracker = {}
@@ -86,7 +85,7 @@ class Agent:
                 fringe.append(newChild)
                 backTracker[newChild] = current
             expanded = fringe.popleft()
-            closedSet.add(expanded)
+            closedSet[expanded] = None
             if current == maze.getEnd():
                 # build path
                 key = current
@@ -101,9 +100,9 @@ class Agent:
     def _DFS(self, maze: Maze) -> Dict:
         '''Assume the following
         - When children nodes are being added to the stack, the input order is: left, down, above, right
-        - ignore repeated states to avoid loops -> optimality not affected
+        - ignore repeated states to avoid loops -> DFS is not an optimal algorithm anyways
         '''
-        closedSet = set()
+        closedSet = OrderedDict()
         backTracker = {}
         fringe = LifoQueue()
         fringe.put(maze.getStart())
@@ -129,7 +128,7 @@ class Agent:
                 newChild = (row,col+1)
                 fringe.put(newChild)
                 backTracker[newChild] = current
-            closedSet.add(current)
+            closedSet[current] = None
             if current == maze.getEnd():
                 # build path
                 key = current

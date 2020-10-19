@@ -19,26 +19,48 @@ class Illustrator:
         screen.fill(self._wallColour)
         done = False  
         pathSet = set(path)
+        for i in range(0,height):
+            for j in range(0, width):
+                if (i,j) in walls:
+                    colour = self._wallColour
+                else:
+                    colour = self._emptyColour
+                pygame.draw.rect(screen,
+                            colour,
+                            [(self._blockMargin + self._blockWidth) * j + self._blockMargin,
+                            (self._blockMargin + self._blockHeight) * (height-1-i) + self._blockMargin,
+                            self._blockWidth,
+                            self._blockHeight])
+        colour = self._openedColour
+        for explored in expandedNodes.keys():
+            i = explored[0]
+            j = explored[1]
+            pygame.draw.rect(screen,
+                            colour,
+                            [(self._blockMargin + self._blockWidth) * j + self._blockMargin,
+                            (self._blockMargin + self._blockHeight) * (height-1-i) + self._blockMargin,
+                            self._blockWidth,
+                            self._blockHeight])
+            pygame.time.wait(10)
+
+            pygame.display.flip()
+        colour = self._pathColour
+        for pathStep in path:
+            i = pathStep[0]
+            j = pathStep[1]
+            for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                            done = True
+            pygame.draw.rect(screen,
+                            colour,
+                            [(self._blockMargin + self._blockWidth) * j + self._blockMargin,
+                            (self._blockMargin + self._blockHeight) * (height-1-i) + self._blockMargin,
+                            self._blockWidth,
+                            self._blockHeight])
+            pygame.time.wait(10)
+            pygame.display.flip()
         while not done:
             for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                             done = True
-            for i in range(0,height):
-                for j in range(0, width):
-                    
-                    if (i,j) in expandedNodes and (i,j) not in pathSet:
-                        colour = self._openedColour
-                    elif (i,j) in walls:
-                        colour = self._wallColour
-                    elif (i,j) in pathSet:
-                        colour = self._pathColour
-                    else:
-                        colour = self._emptyColour
-                    pygame.draw.rect(screen,
-                             colour,
-                             [(self._blockMargin + self._blockWidth) * j + self._blockMargin,
-                              (self._blockMargin + self._blockHeight) * (height-1-i) + self._blockMargin,
-                              self._blockWidth,
-                              self._blockHeight])
-
-            pygame.display.flip()
+            
