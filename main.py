@@ -1,3 +1,4 @@
+# Matthew Romlewski October 20 2020
 from maze import Maze
 from agent import Agent
 from illustrator import Illustrator
@@ -10,7 +11,7 @@ if __name__ == "__main__":
     for run, (start, end) in enumerate(zip(startingPoints, endingPoints)):
         maze = Maze(start=start, end=end)
         agent = Agent()
-        for algorithm in ['BFS', 'DFS', 'A*']:
+        for algorithm in ['A*']:
             results = agent.search(maze, '{}'.format(algorithm))
             caption = "{} Run {} - {}->{} - Expanded {} nodes - Cost {}"\
                 .format(algorithm, run+1, start, end, results['numExpanded'], results['cost'])
@@ -22,3 +23,4 @@ if __name__ == "__main__":
                 path=results['path'], caption=caption
             )
             print("{} Run {} - Path {}".format(algorithm, run+1, results['path']))
+            print(caption)

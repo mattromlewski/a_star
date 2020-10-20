@@ -1,3 +1,4 @@
+# Matthew Romlewski October 20 2020
 import pygame
 
 class Illustrator:
@@ -12,7 +13,7 @@ class Illustrator:
         self._blockMargin = 1
 
     def drawMaze(self, height, width, walls, expandedNodes, path, caption="Window"):
-    #def drawMaze(self):
+        # Draws the maze, then the explored nodes, and then the path
         pygame.init()
         pygame.display.set_caption(caption)
         screen = pygame.display.set_mode([height*(self._blockHeight+self._blockMargin), width*(self._blockHeight+self._blockMargin)])
@@ -41,7 +42,7 @@ class Illustrator:
                             (self._blockMargin + self._blockHeight) * (height-1-i) + self._blockMargin,
                             self._blockWidth,
                             self._blockHeight])
-            pygame.time.wait(10)
+            pygame.time.wait(5)
 
             pygame.display.flip()
         colour = self._pathColour
