@@ -11,7 +11,7 @@ if __name__ == "__main__":
     for run, (start, end) in enumerate(zip(startingPoints, endingPoints)):
         maze = Maze(start=start, end=end)
         agent = Agent()
-        for algorithm in ['A*']:
+        for algorithm in ['BFS','DFS','A*']:
             results = agent.search(maze, '{}'.format(algorithm))
             caption = "{} Run {} - {}->{} - Expanded {} nodes - Cost {}"\
                 .format(algorithm, run+1, start, end, results['numExpanded'], results['cost'])

@@ -52,7 +52,7 @@ class Agent:
         - ignore repeated states to avoid loops -> optimality not affected
         '''
         # dict to remember the explored nodes
-        closedSet = OrderedDict()
+        closedSet = OrderedDict() # ordered dictionary allows for in-order solving animation
         # use a dictionary to store parent-child relationships for nodes to build final path
         # secondary utility is to track which nodes have been added to the  fringe so loops are avoided
         backTracker = {}
@@ -101,7 +101,7 @@ class Agent:
         - When children nodes are being added to the stack, the input order is: left, down, above, right
         - ignore repeated states to avoid loops -> DFS is not an optimal algorithm anyways
         '''
-        closedSet = OrderedDict()
+        closedSet = OrderedDict() # ordered dictionary allows for in-order solving animation
         backTracker = {}
         fringe = LifoQueue()
         fringe.put(maze.getStart())
@@ -165,7 +165,7 @@ class Agent:
         frontier = {} # key: coordinates, val: heuristic cost
         minimumCostNode = None
         minimumCost = float('inf')
-        closedSet = OrderedDict()
+        closedSet = OrderedDict({maze.getStart(): None})
         backTracker = {}
         current = maze.getStart()
         heuristic = 'euclidean'
